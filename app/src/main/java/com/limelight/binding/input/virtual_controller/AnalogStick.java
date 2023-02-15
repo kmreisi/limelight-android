@@ -328,6 +328,7 @@ public class AnalogStick extends VirtualControllerElement {
             case MotionEvent.ACTION_UP: {
                 setPressed(false);
                 break;
+
             }
         }
 

@@ -12,17 +12,12 @@ import android.util.DisplayMetrics;
 import com.limelight.nvstream.input.ControllerPacket;
 import com.limelight.preferences.PreferenceConfiguration;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class VirtualControllerConfigurationLoader {
     public static final String OSC_PREFERENCE = "OSC";
-
-    private static int getPercent(
-            int percent,
-            int total) {
-        return (int) (((float) total / (float) 100) * (float) percent);
-    }
 
     // The default controls are specified using a grid of 128*72 cells at 16:9
     private static int screenScale(int units, int height) {
@@ -195,9 +190,6 @@ public class VirtualControllerConfigurationLoader {
 
         int height = screen.heightPixels;
 
-        // NOTE: Some of these getPercent() expressions seem like they can be combined
-        // into a single call. Due to floating point rounding, this isn't actually possible.
-
         if (!config.onlyL3R3)
         {
             controller.addElement(createDigitalPad(controller, context),
@@ -312,6 +304,24 @@ public class VirtualControllerConfigurationLoader {
                     screenScale(START_BACK_WIDTH, height),
                     screenScale(START_BACK_HEIGHT, height)
             );
+
+
+            try {
+                JSONArray json = new JSONArray();
+
+
+                for (VirtualControllerElement element : controller.getElements()) {
+                    json.put(element.toJson());
+                }
+
+                System.out.println(json.toString(2));
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
         }
         else {
             controller.addElement(createDigitalButton(
@@ -331,6 +341,33 @@ public class VirtualControllerConfigurationLoader {
                     screenScale(TRIGGER_WIDTH, height),
                     screenScale(TRIGGER_HEIGHT, height)
             );
+
+
+            try {
+
+                JSONObject object = new JSONObject();
+
+                object.put("name", "XBOX alike");
+
+                JSONObject screenO = new JSONObject();
+                screenO.put("width", screen.widthPixels);
+                screenO.put("height", screen.heightPixels);
+                object.put("screen", screenO);
+
+                JSONArray elements = new JSONArray();
+
+
+                for (VirtualControllerElement element : controller.getElements()) {
+                    elements.put(element.toJson());
+                }
+                object.put("elements", elements);
+
+                System.out.println(object.toString(2));
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         controller.setOpacity(config.oscOpacity);

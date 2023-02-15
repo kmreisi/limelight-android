@@ -333,6 +333,72 @@ public abstract class VirtualControllerElement extends View {
         return configuration;
     }
 
+
+    /*
+    public static final int EID_DPAD = 1;
+    public static final int EID_LT = 2;
+    public static final int EID_RT = 3;
+    public static final int EID_LB = 4;
+    public static final int EID_RB = 5;
+    public static final int EID_A = 6;
+    public static final int EID_B = 7;
+    public static final int EID_X = 8;
+    public static final int EID_Y = 9;
+    public static final int EID_BACK = 10;
+    public static final int EID_START = 11;
+    public static final int EID_LS = 12;
+    public static final int EID_RS = 13;
+    public static final int EID_LSB = 14;
+    public static final int EID_RSB = 15;
+     */
+    public static String typeFromId(int id) {
+        switch(id)
+        {
+
+
+
+            case EID_DPAD: return "dpad";
+            case EID_LT: return "lt";
+            case EID_RT: return "rt";
+            case EID_LB: return "lb";
+            case EID_RB: return "rb";
+            case EID_A: return "a";
+            case EID_B: return "b";
+            case EID_X: return "x";
+            case EID_Y: return "y";
+            case EID_BACK: return "back";
+            case EID_START: return "start";
+            case EID_LS: return "ls";
+            case EID_RS: return "rs";
+            case EID_LSB: return "lsb";
+            case EID_RSB: return "rsb";
+        }
+
+        return "";
+
+    }
+
+    public JSONObject toJson() throws JSONException {
+        JSONObject configuration = new JSONObject();
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
+
+        configuration.put("type", typeFromId(elementId));
+
+        JSONObject pos = new JSONObject();
+        pos.put("x", layoutParams.leftMargin);
+        pos.put("y", layoutParams.topMargin);
+        pos.put("width", layoutParams.width);
+        pos.put("height", layoutParams.height);
+        configuration.put("pos", pos);
+
+        JSONObject color = new JSONObject();
+        color.put("normal", Integer.toUnsignedString( normalColor, 16));
+        color.put("pressed", Integer.toUnsignedString(pressedColor, 16));
+        configuration.put("color", color);
+
+        return configuration;
+    }
+
     public void loadConfiguration(JSONObject configuration) throws JSONException {
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
 
