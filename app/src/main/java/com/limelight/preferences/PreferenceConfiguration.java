@@ -7,6 +7,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.view.Display;
 
+import com.limelight.binding.input.virtual_keyboard.VirtualKeyboardLayout;
 import com.limelight.nvstream.jni.MoonBridge;
 
 public class PreferenceConfiguration {
@@ -100,6 +101,8 @@ public class PreferenceConfiguration {
     public static final String RES_4K = "3840x2160";
     public static final String RES_NATIVE = "Native";
 
+    public static final String KEYBOARD_LAYOUT = "keyboard_layout";
+
     public int width, height, fps;
     public int bitrate;
     public int videoFormat;
@@ -127,6 +130,8 @@ public class PreferenceConfiguration {
     public boolean enableAudioFx;
     public boolean reduceRefreshRate;
     public boolean fullRange;
+
+    public String keyboardLayout;
 
     public static boolean isNativeResolution(int width, int height) {
         // It's not a native resolution if it matches an existing resolution option
@@ -366,6 +371,26 @@ public class PreferenceConfiguration {
         // https://www.nvidia.com/en-us/geforce/forums/notifications/comment/155192/
         return Build.MANUFACTURER.equalsIgnoreCase("NVIDIA") &&
                 Build.FINGERPRINT.contains("PPR1.180610.011/4079208_2235.1395");
+    }
+
+    private static VirtualKeyboardLayout getKeyboardLayout(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
+        String value = prefs.getString(KEYBOARD_LAYOUT, null);
+
+        if (value == null || value.equals("System")) {
+            // System
+            return null;
+        }
+
+        for (VirtualKeyboardLayout layout : VirtualKeyboardLayout.LAYOUTS) {
+            if (layout.name.equals(value)) {
+                return layout;
+            }
+        }
+
+        // Fallback to System
+        return null;
     }
 
     public static PreferenceConfiguration readPreferences(Context context) {
