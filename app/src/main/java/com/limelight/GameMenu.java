@@ -1,7 +1,10 @@
 package com.limelight;
 
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 
 import com.limelight.binding.input.GameInputDevice;
@@ -20,7 +23,6 @@ import java.util.List;
 public class GameMenu {
 
     private static final long TEST_GAME_FOCUS_DELAY = 10;
-    private static final long KEY_UP_DELAY = 25;
 
     public static class MenuOption {
         private final String label;
@@ -54,42 +56,12 @@ public class GameMenu {
         return game.getResources().getString(id);
     }
 
-    private static byte getModifier(short key) {
-        switch (key) {
-            case KeyboardTranslator.VK_LSHIFT:
-                return KeyboardPacket.MODIFIER_SHIFT;
-            case KeyboardTranslator.VK_LCONTROL:
-                return KeyboardPacket.MODIFIER_CTRL;
-            case KeyboardTranslator.VK_LWIN:
-                return KeyboardPacket.MODIFIER_META;
+    private void openKeyboard() {
+        new Handler().postDelayed(() -> {
 
-            default:
-                return 0;
-        }
-    }
+            game.toggleKeyboard();
 
-    private void sendKeys(short[] keys) {
-        final byte[] modifier = {(byte) 0};
-
-        for (short key : keys) {
-            conn.sendKeyboardInput(key, KeyboardPacket.KEY_DOWN, modifier[0], (byte) 0);
-
-            // Apply the modifier of the pressed key, e.g. CTRL first issues a CTRL event (without
-            // modifier) and then sends the following keys with the CTRL modifier applied
-            modifier[0] |= getModifier(key);
-        }
-
-        new Handler().postDelayed((() -> {
-
-            for (int pos = keys.length - 1; pos >= 0; pos--) {
-                short key = keys[pos];
-
-                // Remove the keys modifier before releasing the key
-                modifier[0] &= ~getModifier(key);
-
-                conn.sendKeyboardInput(key, KeyboardPacket.KEY_UP, modifier[0], (byte) 0);
-            }
-        }), KEY_UP_DELAY);
+        }, 500);
     }
 
     private void runWithGameFocus(Runnable runnable) {
@@ -147,19 +119,19 @@ public class GameMenu {
     private void showSpecialKeysMenu() {
         showMenuDialog(getString(R.string.game_menu_send_keys), new MenuOption[]{
                 new MenuOption(getString(R.string.game_menu_send_keys_esc),
-                        () -> sendKeys(new short[]{KeyboardTranslator.VK_ESCAPE})),
+                        () -> game.sendKeys(new short[]{KeyboardTranslator.VK_ESCAPE})),
                 new MenuOption(getString(R.string.game_menu_send_keys_f11),
-                        () -> sendKeys(new short[]{KeyboardTranslator.VK_F11})),
+                        () -> game.sendKeys(new short[]{KeyboardTranslator.VK_F11})),
                 new MenuOption(getString(R.string.game_menu_send_keys_ctrl_v),
-                        () -> sendKeys(new short[]{KeyboardTranslator.VK_LCONTROL, KeyboardTranslator.VK_V})),
+                        () -> game.sendKeys(new short[]{KeyboardTranslator.VK_LCONTROL, KeyboardTranslator.VK_V})),
                 new MenuOption(getString(R.string.game_menu_send_keys_win),
-                        () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN})),
+                        () -> game.sendKeys(new short[]{KeyboardTranslator.VK_LWIN})),
                 new MenuOption(getString(R.string.game_menu_send_keys_win_d),
-                        () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN, KeyboardTranslator.VK_D})),
+                        () -> game.sendKeys(new short[]{KeyboardTranslator.VK_LWIN, KeyboardTranslator.VK_D})),
                 new MenuOption(getString(R.string.game_menu_send_keys_win_g),
-                        () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN, KeyboardTranslator.VK_G})),
+                        () -> game.sendKeys(new short[]{KeyboardTranslator.VK_LWIN, KeyboardTranslator.VK_G})),
                 new MenuOption(getString(R.string.game_menu_send_keys_shift_tab),
-                        () -> sendKeys(new short[]{KeyboardTranslator.VK_LSHIFT, KeyboardTranslator.VK_TAB})),
+                        () -> game.sendKeys(new short[]{KeyboardTranslator.VK_LSHIFT, KeyboardTranslator.VK_TAB})),
                 new MenuOption(getString(R.string.game_menu_cancel), null),
         });
     }
@@ -168,7 +140,7 @@ public class GameMenu {
         List<MenuOption> options = new ArrayList<>();
 
         options.add(new MenuOption(getString(R.string.game_menu_toggle_keyboard), true,
-                () -> game.toggleKeyboard()));
+                () -> openKeyboard()));
 
         if (device != null) {
             options.addAll(device.getGameMenuOptions());
