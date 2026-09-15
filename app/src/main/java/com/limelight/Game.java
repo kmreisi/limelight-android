@@ -2017,8 +2017,11 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 int eventX = (int)(event.getX(actionIndex) + xOffset);
                 int eventY = (int)(event.getY(actionIndex) + yOffset);
 
-                // Special handling for 3 finger gesture
-                if (event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN &&
+                // Special handling for 3 finger gesture. Skipped when native multi-touch is
+                // enabled and the user has opted to give up the 3-finger keyboard shortcut
+                // in exchange for that 3rd finger being forwarded to the host instead.
+                if ((prefConfig.multiTouchGestures || !prefConfig.enableMultitouch) &&
+                        event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN &&
                         event.getPointerCount() == 3) {
                     // Three fingers down
                     threeFingerDownTime = event.getEventTime();
@@ -2032,14 +2035,14 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                     return true;
                 }
 
-                // TODO: Re-enable native touch when have a better solution for handling
-                // cancelled touches from Android gestures and 3 finger taps to activate
-                // the software keyboard.
-                /*if (!prefConfig.touchscreenTrackpad && trySendTouchEvent(view, event)) {
+                // Native multi-touch/pen forwarding, opt-in via checkbox_enable_multitouch
+                // since it conflicts with Android's own gesture handling (cancelled touches,
+                // 3/4-finger taps) unless the app is also handling those gestures itself.
+                if (prefConfig.enableMultitouch && !prefConfig.touchscreenTrackpad && trySendTouchEvent(view, event)) {
                     // If this host supports touch events and absolute touch is enabled,
                     // send it directly as a touch event.
                     return true;
-                }*/
+                }
 
                 TouchContext context = getTouchContext(actionIndex);
                 if (context == null) {

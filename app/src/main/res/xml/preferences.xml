@@ -135,6 +135,17 @@
             android:summary="@string/summary_checkbox_touchscreen_trackpad"
             android:defaultValue="true" />
         <CheckBoxPreference
+            android:key="checkbox_enable_multitouch"
+            android:title="@string/title_checkbox_enable_multitouch"
+            android:summary="@string/summary_checkbox_enable_multitouch"
+            android:defaultValue="false" />
+        <CheckBoxPreference
+            android:key="checkbox_multi_touch_gestures"
+            android:dependency="checkbox_enable_multitouch"
+            android:title="@string/title_checkbox_multi_touch_gestures"
+            android:summary="@string/summary_checkbox_multi_touch_gestures"
+            android:defaultValue="true" />
+        <CheckBoxPreference
             android:key="checkbox_mouse_nav_buttons"
             android:title="@string/title_checkbox_mouse_nav_buttons"
             android:summary="@string/summary_checkbox_mouse_nav_buttons"
